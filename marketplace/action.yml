@@ -1,0 +1,137 @@
+# This implementation is based on https://developer.atlassian.com/platform/marketplace/listing-an-app-version-using-rest/
+name: 'Release to marketplace'
+description: 'Release new app version to marketplace'
+inputs:
+  addonKey:
+    description: 'Addon key'
+    required: true
+  filePath:
+    description: 'Path to the jar file'
+    required: true
+  fileName:
+    description: 'jar file name'
+    required: true
+  version:
+    description: 'The new app version'
+    required: true
+  marketplaceUser:
+    description: 'The marketplace user'
+    required: true
+  marketplaceToken:
+    description: 'The marketplace token'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Set marketplace base URL
+      id: mp-base-url
+      run: echo "::set-output name=value::https://marketplace.atlassian.com"
+      shell: bash
+
+    - name: Get marketplace info
+      id: mp-info
+      uses: fjogeleit/http-request-action@v1.9.0
+      with:
+        url: ${{ steps.mp-base-url.outputs.value }}/rest/2
+        method: GET
+
+    - name: Extract marketplace endpoints
+      id: mp-endpoint
+      run: |
+        echo "::set-output name=assets::${{ fromJSON(steps.mp-info.outputs.response)._links.assets.href }}"
+        echo "::set-output name=addons::${{ fromJSON(steps.mp-info.outputs.response)._links.addons.href }}"
+      shell: bash
+
+    - name: Get marketplace asset info
+      id: mp-asset-info
+      uses: fjogeleit/http-request-action@v1.9.0
+      with:
+        url: ${{ steps.mp-base-url.outputs.value }}${{ steps.mp-endpoint.outputs.assets }}
+        method: GET
+
+    - name: Extract marketplace artifact endpoint
+      id: mp-artifact-endpoint
+      run: echo "::set-output name=value::${{ fromJSON(steps.mp-asset-info.outputs.response)._links.artifact.href }}"
+      shell: bash
+
+    - name: Upload to marketplace
+      id: mp-upload
+      uses: fjogeleit/http-request-action@v1.9.0
+      with:
+        url: ${{ steps.mp-base-url.outputs.value }}${{ steps.mp-artifact-endpoint.outputs.value }}?file=${{ inputs.fileName }}
+        method: POST
+        contentType: application/octet-stream
+        username: ${{ inputs.marketplaceUser }}
+        password: ${{ inputs.marketplaceToken }}
+        file: ${{ inputs.filePath }}
+
+    - name: Extract marketplace upload endpoint
+      id: mp-upload-endpoint
+      run: echo "::set-output name=value::${{ fromJSON(steps.mp-upload.outputs.response)._links.self.href }}"
+      shell: bash
+
+    - name: Get marketplace addons APIs
+      id: mp-addon-api
+      uses: fjogeleit/http-request-action@v1.9.0
+      with:
+        url: ${{ steps.mp-base-url.outputs.value }}${{ steps.mp-endpoint.outputs.addons }}?limit=0
+        method: GET
+
+    - name: Extract marketplace addon endpoint template
+      id: mp-addon-endpoint-template
+      run: echo "::set-output name=value::${{ fromJSON(steps.mp-addon-api.outputs.response)._links.byKey.href }}"
+      shell: bash
+
+    - name: Build marketplace addon endpoint
+      id: mp-addon-endpoint
+      uses: frabert/replace-string-action@v2.0
+      with:
+        pattern: '{addonKey}'
+        string: ${{ steps.mp-addon-endpoint-template.outputs.value }}
+        replace-with: ${{ inputs.addonKey }}
+
+    - name: Get marketplace addons info
+      id: mp-addon-info
+      uses: fjogeleit/http-request-action@v1.9.0
+      with:
+        url: ${{ steps.mp-base-url.outputs.value }}${{ steps.mp-addon-endpoint.outputs.replaced }}
+        username: ${{ inputs.marketplaceUser }}
+        password: ${{ inputs.marketplaceToken }}
+        method: GET
+
+    - name: Extract marketplace addons version endpoint
+      id: mp-addon-version-endpoint
+      run: echo "::set-output name=value::${{ fromJSON(steps.mp-addon-info.outputs.response)._links.versions.href }}"
+      shell: bash
+
+    - name: Create new marketplace version
+      id: create-mp-version-res
+      uses: fjogeleit/http-request-action@v1.9.0
+      with:
+        url: ${{ steps.mp-base-url.outputs.value }}${{ steps.mp-addon-version-endpoint.outputs.value }}
+        method: POST
+        contentType: application/json
+        username: ${{ inputs.marketplaceUser }}
+        password: ${{ inputs.marketplaceToken }}
+        timeout: '30000'
+        data: '{ "_links": { "artifact": { "href": "${{ steps.mp-upload-endpoint.outputs.value }}" } }, "status": "private", "name": "${{ inputs.version }}" }'
+
+    - name: Print app version creation response
+      run: echo ${{ steps.create-mp-version-res.outputs.response }}
+      shell: bash
+
+    - name: Bump required version for migration
+      id: bump-migration-version-res
+      uses: fjogeleit/http-request-action@v1.9.0
+      with:
+        url: ${{ steps.mp-base-url.outputs.value }}${{ steps.mp-addon-endpoint.outputs.replaced }}/migration
+        method: PATCH
+        contentType: application/json-patch+json
+        username: ${{ inputs.marketplaceUser }}
+        password: ${{ inputs.marketplaceToken }}
+        timeout: '30000'
+        data: '[{ "op": "replace", "path": "/cloudMigrationAssistantCompatibility", "value": "${{ inputs.version }}" }]'
+
+    - name: Print bump migration version response
+      run: echo ${{ steps.bump-migration-version-res.outputs.response }}
+      shell: bash

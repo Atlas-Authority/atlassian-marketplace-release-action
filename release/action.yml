@@ -1,0 +1,67 @@
+name: 'Release server app'
+description: 'Release server app'
+inputs:
+  addonKey:
+    description: 'Addon key'
+    required: true
+  branch:
+    description: 'The release branch to checkout'
+    required: true
+  githubUserName:
+    description: 'Github username to commit'
+    required: false
+  githubUserEmail:
+    description: 'Github user email to commit'
+    required: false
+  githubToken:
+    description: 'The token used to checkout the repo'
+    required: true
+  marketplaceUser:
+    description: 'The marketplace user'
+    required: false
+  marketplaceToken:
+    description: 'The marketplace token'
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - name: Verify release tag
+      id: verify-release-tag
+      uses: Atlas-Authority/atlassian-marketplace-release-action/verify-release-tag@composite-actions
+      with:
+        branch: ${{ inputs.branch }}
+        githubToken: ${{ inputs.githubToken }}
+
+    - name: Setup node environment
+      id: setup-node-env
+      uses: Atlas-Authority/atlassian-marketplace-release-action/setup-node@composite-actions
+
+    - name: Build and upload jar files to release assets
+      id: build-jar
+      uses: Atlas-Authority/atlassian-marketplace-release-action/build-jar@composite-actions
+      with:
+        release-version: ${{ steps.verify-release-tag.outputs.release-version }}
+        branch: ${{ inputs.branch }}
+        githubToken: ${{ inputs.githubToken }}
+
+    - name: Release to marketplace
+      uses: Atlas-Authority/atlassian-marketplace-release-action/marketplace@composite-actions
+      with:
+        addonKey: ${{ steps.build-jar.outputs.addon-key }}
+        filePath: ${{ steps.build-jar.outputs.file-path }}
+        fileName: ${{ steps.build-jar.outputs.file-name }}
+        version: ${{ steps.verify-release-tag.outputs.release-version }}
+        marketplaceUser: ${{ inputs.marketplaceUser }}
+        marketplaceToken: ${{ inputs.marketplaceToken }}
+      if: inputs.marketplaceToken != '' && steps.build-jar.outputs.should-bump-version == 'true'
+
+    - name: Commit the changes to pom.xml
+      run: |
+        git stash apply
+        git config --global user.name "${{ inputs.githubUserName }}"
+        git config --global user.email "${{ inputs.githubUserEmail }}"
+        git add pom.xml
+        git commit -m "Bumped version to ${{ steps.verify-release-tag.outputs.release-version }}"
+        git push
+      if: steps.build-jar.outputs.should-bump-version == 'true'
+      shell: bash
