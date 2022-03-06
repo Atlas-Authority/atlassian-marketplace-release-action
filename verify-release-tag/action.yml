@@ -1,0 +1,46 @@
+name: 'Verify Release Tag'
+description: 'Check if the release branch contain the releaes tag'
+inputs:
+  branch:
+    description: 'The release branch to checkout'
+    required: true
+  githubToken:
+    description: 'The token used to checkout the repo'
+    required: true
+outputs:
+  release-version:
+    description: "Release version"
+    value: ${{ steps.release-version.outputs.value }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Get release version
+      id: release-version
+      run: echo ::set-output name=value::${{ github.event.release.tag_name }}
+      shell: bash
+
+    - name: Print tag version
+      run: echo ${{ steps.release-version.outputs.value }}
+      shell: bash
+
+    - uses: actions/checkout@v2
+      with:
+        token: ${{ inputs.githubToken }}
+        ref: ${{ inputs.branch }}
+        fetch-depth: 0
+
+    - name: Check if branch ${{ inputs.branch }} contain tag ${{ inputs.tag }}
+      id: branch-contains-tag
+      run: echo "::set-output name=value::$(git branch --contains ${{ inputs.tag }} | grep -E '(^|\s)${{ inputs.branch }}')"
+      shell: bash
+      
+    - name: Print branch-contains-tag
+      run: echo '${{ steps.branch-contains-tag.outputs.value }}'
+      shell: bash
+
+    - name: Fail if ${{ inputs.branch }} does not contain the tag ${{ inputs.tag }}
+      run: |
+        echo "Branch ${{ inputs.branch }} does not contain tag ${{ inputs.tag }}. Exit now!"
+        exit -1
+      if: steps.branch-contains-tag.outputs.value == ''
+      shell: bash

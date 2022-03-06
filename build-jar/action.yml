@@ -1,0 +1,147 @@
+name: 'Build Jar'
+description: 'Build server app to jar files'
+inputs:
+  release-version:
+    description: 'The release version'
+    required: true
+  branch:
+    description: 'The release branch to checkout'
+    required: true
+  githubToken:
+    description: 'The token used to checkout the repo'
+    required: true
+outputs:
+  addon-key:
+    description: "Server app addon key"
+    value: ${{ steps.addon-key.outputs.value }}
+  should-bump-version:
+    description: "Should bump new version to pom.xml"
+    value: ${{ steps.should-bump-version.outputs.value }}
+  file-path:
+    description: "Path to the jar file"
+    value: target/${{ steps.get-jar-file.outputs.name }}
+  file-name:
+    description: "jar file name"
+    value: ${{ steps.get-jar-file.outputs.name }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Atlas-SDK
+      id: install-atlas-sdk
+      run: |
+        sudo sh -c 'echo "deb https://packages.atlassian.com/debian/atlassian-sdk-deb/ stable contrib" >> /etc/apt/sources.list'
+        wget https://packages.atlassian.com/api/gpg/key/public
+        sudo apt-key add public
+        sudo apt-get update
+        sudo apt-get install atlassian-plugin-sdk
+        atlas-version
+      shell: bash
+
+    - name: Install Java and Maven
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '8'
+
+    - name: Get group ID
+      id: group-id
+      run: echo "::set-output name=value::$(atlas-mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout | grep -v '\[' | tail -1)"
+      shell: bash
+
+    - name: Get artifact ID
+      id: artifact-id
+      run: echo "::set-output name=value::$(atlas-mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout | grep -v '\[' | tail -1)"
+      shell: bash
+
+    - name: Get addon key
+      id: addon-key
+      run: echo "::set-output name=value::${{ steps.group-id.outputs.value }}.${{ steps.artifact-id.outputs.value }}"
+      shell: bash
+
+    - name: Print addon key
+      run: echo ${{ steps.addon-key.outputs.value }}
+      shell: bash
+
+    - name: Get current version
+      id: current-version
+      run: echo "::set-output name=value::$(atlas-mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -v '\[' | tail -1)"
+      shell: bash
+
+    - name: Print current version
+      run: echo ${{ steps.current-version.outputs.value }}
+      shell: bash
+
+    - name: Check if version changed
+      id: version-changed
+      run: echo "::set-output name=value::${{ inputs.release-version != steps.current-version.outputs.value }}"
+      shell: bash
+
+    - name: Print version changed
+      run: echo ${{ steps.version-changed.outputs.value }}
+      shell: bash
+
+    - name: Checkout tag commit
+      run: git checkout ${{ inputs.release-version }}
+      shell: bash
+
+    - name: Update version in pom.xml
+      run: atlas-mvn -q -B versions:set -DnewVersion=${{ inputs.release-version }} -DgenerateBackupPoms=false
+      shell: bash
+
+    - name: Packaging
+      run: atlas-mvn -q package
+      shell: bash
+
+    - name: Get jar file name
+      id: get-jar-file
+      run: |
+        echo "::set-output name=name::${{ steps.artifact-id.outputs.value }}-${{ inputs.release-version }}.jar"
+        echo "::set-output name=archive::${{ steps.artifact-id.outputs.value }}-${{ inputs.release-version }}"
+      shell: bash
+
+    - name: Archive for download
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ steps.get-jar-file.outputs.archive }}
+        path: target/${{ steps.get-jar-file.outputs.name }}
+
+    - name: Upload jar as asset to release
+      uses: softprops/action-gh-release@v1
+      with:
+        token: ${{ inputs.githubToken }}
+        files: target/${{ steps.get-jar-file.outputs.name }}
+
+    - name: Checkout ${{ inputs.branch }} branch
+      run: |
+        git stash
+        git checkout ${{ inputs.branch }}
+      if: steps.version-changed.outputs.value == 'true'
+      shell: bash
+
+    - name: Get head tag
+      id: get-head-tag
+      run: echo "::set-output name=value::$(git tag --points-at HEAD || tail -1)"
+      if: steps.version-changed.outputs.value == 'true'
+      shell: bash
+
+    - name: Print head tag
+      run: echo ${{ steps.get-head-tag.outputs.value }}
+      shell: bash
+
+    - name: Check if the new tag is at head
+      id: tag-at-head
+      run: echo "::set-output name=value::${{ inputs.release-version == steps.get-head-tag.outputs.value }}"
+      shell: bash
+
+    - name: Print is new tag at head
+      run: echo ${{ steps.tag-at-head.outputs.value }}
+      shell: bash
+
+    - name: Check if should bump version
+      id: should-bump-version
+      run: echo "::set-output name=value::${{ steps.version-changed.outputs.value == 'true' && steps.tag-at-head.outputs.value == 'true' }}"
+      shell: bash
+
+    - name: Print should bump version
+      run: echo ${{ steps.should-bump-version.outputs.value }}
+      shell: bash

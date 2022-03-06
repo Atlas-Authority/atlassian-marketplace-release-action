@@ -1,0 +1,48 @@
+name: 'Setup node env'
+description: 'Install npm and node base on engines field of package.json if available'
+inputs:
+  tag:
+    description: 'The release tag'
+    required: true
+  branch:
+    description: 'The release branch to checkout'
+    required: true
+  githubToken:
+    description: 'The token used to checkout the repo'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Check if package.json is exist
+      id: is-node-project
+      run: echo ::set-output name=value::$(test -e package.json && echo true || echo false)
+      shell: bash
+
+    - name: Print is node project
+      run: echo ${{ steps.is-node-project.outputs.value }}
+      shell: bash
+
+    - name: Extract npm and node version
+      id: engines
+      run: |
+        echo ::set-output name=node::$(cat package.json | jq -r '.engines.node')
+        echo ::set-output name=npm::$(cat package.json | jq -r '.engines.npm')
+      if: steps.is-node-project.outputs.value == 'true'
+      shell: bash
+
+    - name: Fails if the version of npm or node is missing
+      run: |
+        echo "Version of npm or node is missing"
+        exit -1
+      if: (steps.engines.outputs.npm == 'null' || steps.engines.outputs.node == 'null') && steps.is-node-project.outputs.value == 'true'
+      shell: bash
+
+    - uses: actions/setup-node@v2
+      with:
+        node-version: ${{ steps.engines.outputs.node }}
+      if: steps.is-node-project.outputs.value == 'true'
+
+    - name: Use npm version ${{ steps.engines.outputs.npm }}
+      run: npm install npm@${{ steps.engines.outputs.npm }}
+      if: steps.is-node-project.outputs.value == 'true'
+      shell: bash
