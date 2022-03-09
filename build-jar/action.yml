@@ -13,7 +13,7 @@ inputs:
 outputs:
   addon-key:
     description: "Server app addon key"
-    value: ${{ steps.addon-key.outputs.value }}
+    value: ${{ steps.addon-key.outputs.info }}
   should-bump-version:
     description: "Should bump new version to pom.xml"
     value: ${{ steps.should-bump-version.outputs.value }}
@@ -43,23 +43,9 @@ runs:
         distribution: 'adopt'
         java-version: '8'
 
-    - name: Get group ID
-      id: group-id
-      run: echo "::set-output name=value::$(atlas-mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout | grep -v '\[' | tail -1)"
-      shell: bash
-
     - name: Get artifact ID
       id: artifact-id
       run: echo "::set-output name=value::$(atlas-mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout | grep -v '\[' | tail -1)"
-      shell: bash
-
-    - name: Get addon key
-      id: addon-key
-      run: echo "::set-output name=value::${{ steps.group-id.outputs.value }}.${{ steps.artifact-id.outputs.value }}"
-      shell: bash
-
-    - name: Print addon key
-      run: echo ${{ steps.addon-key.outputs.value }}
       shell: bash
 
     - name: Get current version
@@ -97,6 +83,17 @@ runs:
       run: |
         echo "::set-output name=name::${{ steps.artifact-id.outputs.value }}-${{ inputs.release-version }}.jar"
         echo "::set-output name=archive::${{ steps.artifact-id.outputs.value }}-${{ inputs.release-version }}"
+      shell: bash
+      
+    - name: Get addon key
+      id: addon-key
+      uses: mavrosxristoforos/get-xml-info@1.1.0
+      with:
+        xml-file: target/classes/atlassian-plugin.xml
+        xpath: //atlassian-plugin/@key
+
+    - name: Print addon key
+      run: echo ${{ steps.addon-key.outputs.info }}
       shell: bash
 
     - name: Archive for download
