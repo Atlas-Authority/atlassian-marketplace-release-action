@@ -1,15 +1,15 @@
 name: 'Setup node env'
 description: 'Install npm and node base on engines field of package.json if available'
-inputs:
-  tag:
-    description: 'The release tag'
-    required: true
-  branch:
-    description: 'The release branch to checkout'
-    required: true
-  githubToken:
-    description: 'The token used to checkout the repo'
-    required: true
+outputs:
+  is-node-project:
+    description: 'Is the current repository a node project'
+    value: ${{ steps.is-node-project.outputs.value }}
+  node-version:
+    description: 'The installed node version'
+    value: ${{ steps.engines.outputs.node }}
+  npm-version:
+    description: 'The installed npm version'
+    value: ${{ steps.engines.outputs.npm }}
 runs:
   using: 'composite'
   steps:
