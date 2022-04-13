@@ -115,7 +115,7 @@ runs:
         password: ${{ inputs.marketplaceToken }}
         #customHeaders: '{"X-Mpac-DataCenter-BuildNumber": "str(serverBuildNumber + 10)"}'
         timeout: '30000'
-        data: '{ "_links": { "artifact": { "href": "${{ steps.mp-upload-endpoint.outputs.value }}" } }, "status": "private", "name": "${{ inputs.version }}", "release": { "beta": false, "supported": true }, "compatibilities": { "application": "confluence", "hosting": { "server": { "min": { "build": 11908 }, "max": { "build": 16845 } }, "dataCenter": { "min": { "build": 11908 }, "max": { "build": 16845 } } } } }'
+        data: '{ "_links": { "artifact": { "href": "${{ steps.mp-upload-endpoint.outputs.value }}" } }, "status": "private", "name": "${{ inputs.version }}", "release": { "beta": false, "supported": true }, "compatibilities": [{ "application": "confluence", "hosting": { "server": { "min": { "build": 11908 }, "max": { "build": 16845 } }, "dataCenter": { "min": { "build": 11908 }, "max": { "build": 16845 } } } }] }'
 
     - name: Print app version creation response
       run: echo ${{ steps.create-mp-version-res.outputs.response }}
