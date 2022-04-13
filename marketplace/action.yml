@@ -104,8 +104,8 @@ runs:
       run: echo "::set-output name=value::${{ fromJSON(steps.mp-addon-info.outputs.response)._links.versions.href }}"
       shell: bash
 
-    - name: Create new marketplace version
-      id: create-mp-version-res
+    - name: Create new server app version
+      id: create-server-version-res
       uses: fjogeleit/http-request-action@v1.9.0
       with:
         url: ${{ steps.mp-base-url.outputs.value }}${{ steps.mp-addon-version-endpoint.outputs.value }}
@@ -115,10 +115,27 @@ runs:
         password: ${{ inputs.marketplaceToken }}
         customHeaders: '{"X-Mpac-DataCenter-BuildNumber": "str(serverBuildNumber + 10)"}'
         timeout: '30000'
-        data: '{ "_links": { "artifact": { "href": "${{ steps.mp-upload-endpoint.outputs.value }}" } }, "status": "private", "name": "${{ inputs.version }}", "release": { "beta": false, "supported": true } }'
+        data: '{ "_links": { "artifact": { "href": "${{ steps.mp-upload-endpoint.outputs.value }}" } }, "status": "private", "name": "${{ inputs.version }}", "release": { "beta": false, "supported": true }, "compatibilities": [{ "application": "confluence", "hosting": { "server": { "min": { "build": 11908 }, "max": { "build": 16845 } } } }] }'
+        
+    - name: Create new data center app version
+      id: create-dc-version-res
+      uses: fjogeleit/http-request-action@v1.9.0
+      with:
+        url: ${{ steps.mp-base-url.outputs.value }}${{ steps.mp-addon-version-endpoint.outputs.value }}
+        method: POST
+        contentType: application/json
+        username: ${{ inputs.marketplaceUser }}
+        password: ${{ inputs.marketplaceToken }}
+        customHeaders: '{"X-Mpac-DataCenter-BuildNumber": "str(serverBuildNumber + 10)"}'
+        timeout: '30000'
+        data: '{ "_links": { "artifact": { "href": "${{ steps.mp-upload-endpoint.outputs.value }}" } }, "status": "private", "name": "${{ inputs.version }}", "release": { "beta": false, "supported": true }, "compatibilities": [{ "application": "confluence", "hosting": { "dataCenter": { "min": { "build": 11908 }, "max": { "build": 16845 } } } }] }'
 
-    - name: Print app version creation response
-      run: echo ${{ steps.create-mp-version-res.outputs.response }}
+    - name: Print server app version creation response
+      run: echo ${{ steps.create-server-version-res.outputs.response }}
+      shell: bash
+      
+    - name: Print data center app version creation response
+      run: echo ${{ steps.create-dc-version-res.outputs.response }}
       shell: bash
 
     - name: Bump required version for migration
