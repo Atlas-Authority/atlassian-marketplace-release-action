@@ -117,7 +117,7 @@ runs:
 
     - name: Get head tag
       id: get-head-tag
-      run: echo "::set-output name=value::$(git tag --points-at HEAD || tail -1)"
+      run: echo "::set-output name=value::$(git tag --points-at HEAD | tail -1)"
       if: steps.version-changed.outputs.value == 'true'
       shell: bash
 
