@@ -113,7 +113,7 @@ runs:
         contentType: application/json
         username: ${{ inputs.marketplaceUser }}
         password: ${{ inputs.marketplaceToken }}
-        customHeaders: '{"X-Mpac-DataCenter-BuildNumber": "str(serverBuildNumber + 10)"}'
+        #customHeaders: '{"X-Mpac-DataCenter-BuildNumber": "str(serverBuildNumber + 10)"}'
         timeout: '30000'
         data: '{ "_links": { "artifact": { "href": "${{ steps.mp-upload-endpoint.outputs.value }}" } }, "status": "private", "name": "${{ inputs.version }}", "release": { "beta": false, "supported": true } }'
 
