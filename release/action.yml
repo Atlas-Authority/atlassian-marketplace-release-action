@@ -44,17 +44,6 @@ runs:
         branch: ${{ inputs.branch }}
         githubToken: ${{ inputs.githubToken }}
 
-    - name: Release to marketplace
-      uses: Atlas-Authority/atlassian-marketplace-release-action/marketplace@main
-      with:
-        addonKey: ${{ steps.build-jar.outputs.addon-key }}
-        filePath: ${{ steps.build-jar.outputs.file-path }}
-        fileName: ${{ steps.build-jar.outputs.file-name }}
-        version: ${{ steps.verify-release-tag.outputs.release-version }}
-        marketplaceUser: ${{ inputs.marketplaceUser }}
-        marketplaceToken: ${{ inputs.marketplaceToken }}
-      if: inputs.marketplaceToken != '' && steps.build-jar.outputs.should-bump-version == 'true'
-
     - name: Commit the changes to pom.xml
       run: |
         git stash apply
