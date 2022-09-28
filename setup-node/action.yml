@@ -43,6 +43,6 @@ runs:
       if: steps.is-node-project.outputs.value == 'true'
 
     - name: Use npm version ${{ steps.engines.outputs.npm }}
-      run: npm install npm@${{ steps.engines.outputs.npm }}
+      run: npm install npm@${{ steps.engines.outputs.npm }} --legacy-peer-deps
       if: steps.is-node-project.outputs.value == 'true'
       shell: bash
