@@ -39,7 +39,7 @@ runs:
         sudo apt-key add public
         sudo apt-get update
         sudo apt-get install atlassian-plugin-sdk
-        export ATLAS_MVN=/usr/bin/mvn
+        export ATLAS_MVN=/usr/share/apache-maven-3.8.7/bin/mvn
         atlas-version
       shell: bash
 
