@@ -81,7 +81,9 @@ runs:
       shell: bash
 
     - name: Packaging
-      run: atlas-version | atlas-mvn -q package
+      run: |
+        atlas-version
+        atlas-mvn -q package
       shell: bash
 
     - name: Get jar file name
