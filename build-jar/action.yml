@@ -26,6 +26,11 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v4.5
+      with:
+        maven-version: 3.8.7
+        
     - name: Install Atlas-SDK
       id: install-atlas-sdk
       run: |
@@ -34,6 +39,9 @@ runs:
         sudo apt-key add public
         sudo apt-get update
         sudo apt-get install atlassian-plugin-sdk
+        export ATLAS_MVN=/usr/bin/mvn
+        atlas-version
+      shell: bash
         atlas-version
       shell: bash
 
@@ -42,15 +50,6 @@ runs:
       with:
         distribution: 'adopt'
         java-version: '11'
-        
-    - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.5
-      with:
-        maven-version: 3.8.7
-      run: |
-        export ATLAS_MVN=/usr/bin/mvn
-        atlas-version
-      shell: bash
 
     - name: Get artifact ID
       id: artifact-id
