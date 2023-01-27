@@ -42,8 +42,6 @@ runs:
         export ATLAS_MVN=/usr/bin/mvn
         atlas-version
       shell: bash
-        atlas-version
-      shell: bash
 
     - name: Install Java and Maven
       uses: actions/setup-java@v3
