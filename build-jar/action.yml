@@ -42,6 +42,15 @@ runs:
       with:
         distribution: 'adopt'
         java-version: '11'
+        
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@v4.5
+      with:
+        maven-version: 3.8.7
+      run: |
+        export ATLAS_MVN=/usr/bin/mvn
+        atlas-version
+      shell: bash
 
     - name: Get artifact ID
       id: artifact-id
