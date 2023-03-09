@@ -26,11 +26,6 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.5
-      with:
-        maven-version: 3.8.7
-        
     - name: Install Atlas-SDK
       id: install-atlas-sdk
       run: |
@@ -80,9 +75,7 @@ runs:
       shell: bash
 
     - name: Packaging
-      run: |
-        export ATLAS_MVN=/usr/share/apache-maven-3.8.7/bin/mvn
-        atlas-mvn -q package
+      run: atlas-mvn -q package
       shell: bash
 
     - name: Get jar file name
@@ -91,7 +84,7 @@ runs:
         echo "::set-output name=name::${{ steps.artifact-id.outputs.value }}-${{ inputs.release-version }}.jar"
         echo "::set-output name=archive::${{ steps.artifact-id.outputs.value }}-${{ inputs.release-version }}"
       shell: bash
-      
+
     - name: Get addon key
       id: addon-key
       uses: mavrosxristoforos/get-xml-info@1.1.0
