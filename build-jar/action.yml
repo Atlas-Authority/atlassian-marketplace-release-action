@@ -89,10 +89,10 @@ runs:
 
     - name: Packaging
       run: |
-        export ATLAS_MVN="/home/runner/.mvnvm/apache-maven-${{inputs.mavenVersion}}"
-        atlas-version
         atlas-mvn -q package
       shell: bash
+      env:
+        ATLAS_MVN: /home/runner/.mvnvm/apache-maven-${{inputs.mavenVersion}}
 
     - name: Get jar file name
       id: get-jar-file
