@@ -89,6 +89,7 @@ runs:
 
     - name: Packaging
       run: |
+        chmod +rx $ATLAS_MVN
         atlas-mvn -q package
       shell: bash
       env:
