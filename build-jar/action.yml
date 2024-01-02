@@ -89,7 +89,7 @@ runs:
     - name: Packaging
       run: |
         ls -la
-        atlas-mvn version
+        atlas-mvn --version
         atlas-mvn -q package
       shell: bash
 
