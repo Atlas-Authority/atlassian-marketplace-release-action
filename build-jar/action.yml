@@ -53,6 +53,7 @@ runs:
         eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
         brew install mvnvm
         echo "mvn_version=${{inputs.mavenVersion}}" >> mvnvm.properties
+        mvn --version
       shell: bash
 
     - name: Get artifact ID
@@ -88,7 +89,7 @@ runs:
 
     - name: Packaging
       run: |
-        ls -la
+        ATLAS_MVN="~/.mvnvm/apache-maven-${{inputs.mavenVersion}}"
         atlas-mvn --version
         atlas-mvn -q package
       shell: bash
