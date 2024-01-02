@@ -89,11 +89,10 @@ runs:
 
     - name: Packaging
       run: |
-        sudo chmod +rx $ATLAS_MVN
         atlas-mvn -q package
       shell: bash
       env:
-        ATLAS_MVN: /home/runner/.mvnvm/apache-maven-${{inputs.mavenVersion}}
+        ATLAS_MVN: /home/runner/.mvnvm/apache-maven-${{inputs.mavenVersion}}/bin/mvn
 
     - name: Get jar file name
       id: get-jar-file
