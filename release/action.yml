@@ -22,6 +22,10 @@ inputs:
   marketplaceToken:
     description: 'The marketplace token'
     required: false
+  mavenVersion:
+    description: 'The Maven version to install and use for compilation'
+    required: false
+    default: '3.5.4'
 runs:
   using: 'composite'
   steps:
@@ -43,6 +47,7 @@ runs:
         release-version: ${{ steps.verify-release-tag.outputs.release-version }}
         branch: ${{ inputs.branch }}
         githubToken: ${{ inputs.githubToken }}
+        mavenVersion: ${{ inputs.mavenVersion }}
 
     - name: Commit the changes to pom.xml
       run: |
