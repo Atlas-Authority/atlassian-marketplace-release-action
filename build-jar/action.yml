@@ -10,6 +10,10 @@ inputs:
   githubToken:
     description: 'The token used to checkout the repo'
     required: true
+  mavenVersion:
+    description: 'The Maven version to install and use for compilation'
+    required: false
+    default: '3.5.4'
 outputs:
   addon-key:
     description: "Server app addon key"
@@ -37,11 +41,19 @@ runs:
         atlas-version
       shell: bash
 
-    - name: Install Java and Maven
+    - name: Install Java
       uses: actions/setup-java@v3
       with:
         distribution: 'adopt'
         java-version: '11'
+
+    - name: Install Maven
+      id: install-maven
+      run: |
+        $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+        brew install mvnvm
+        echo "mvn_version=${{inputs.mavenVersion}}" >> mvnvm.properties
+      shell: bash
 
     - name: Get artifact ID
       id: artifact-id
