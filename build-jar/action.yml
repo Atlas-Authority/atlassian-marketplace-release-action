@@ -52,8 +52,6 @@ runs:
       run: |
         eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
         brew install mvnvm
-        echo "mvn_version=${{inputs.mavenVersion}}" >> mvnvm.properties
-        mvn --version
       shell: bash
 
     - name: Get artifact ID
@@ -83,9 +81,17 @@ runs:
       run: git checkout ${{ inputs.release-version }}
       shell: bash
 
+    - name: Install correct Maven
+      run: |
+        echo "mvn_version=${{inputs.mavenVersion}}" >> mvnvm.properties
+        mvn --version
+      shell: bash  
+
     - name: Update version in pom.xml
       run: atlas-mvn -q -B versions:set -DnewVersion=${{ inputs.release-version }} -DgenerateBackupPoms=false
       shell: bash
+      env:
+        ATLAS_MVN: /home/runner/.mvnvm/apache-maven-${{inputs.mavenVersion}}/bin/mvn
 
     - name: Packaging
       run: |
