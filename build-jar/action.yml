@@ -39,7 +39,6 @@ runs:
         sudo apt-get update
         sudo apt-get install atlassian-plugin-sdk
         atlas-version
-        mvn --version
       shell: bash
 
     - name: Install Java
@@ -47,6 +46,11 @@ runs:
       with:
         distribution: 'adopt'
         java-version: '11'
+
+    - name: Set up MAVEN_HOME environment variable
+      run: |
+        OUTPUT_COMMAND=$(mvn --version | grep 'Maven home: ' | sed 's/Maven home: //')
+        echo "MAVEN_HOME=$OUTPUT_COMMAND" >> $GITHUB_ENV
 
     - name: Get artifact ID
       id: artifact-id
@@ -79,14 +83,14 @@ runs:
       run: atlas-mvn -q -B versions:set -DnewVersion=${{ inputs.release-version }} -DgenerateBackupPoms=false
       shell: bash
       env:
-        ATLAS_MVN: $MAVEN_HOME
+        ATLAS_MVN: ${{env.MAVEN_HOME}}
 
     - name: Packaging
       run: |
         atlas-mvn -q package
       shell: bash
       env:
-        ATLAS_MVN: $MAVEN_HOME
+        ATLAS_MVN: ${{env.MAVEN_HOME}}
 
     - name: Get jar file name
       id: get-jar-file
