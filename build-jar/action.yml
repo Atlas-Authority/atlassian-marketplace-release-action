@@ -39,6 +39,7 @@ runs:
         sudo apt-get update
         sudo apt-get install atlassian-plugin-sdk
         atlas-version
+        echo $MAVEN_HOME
       shell: bash
 
     - name: Install Java
@@ -46,13 +47,6 @@ runs:
       with:
         distribution: 'adopt'
         java-version: '11'
-
-    - name: Install Maven
-      id: install-maven
-      run: |
-        eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
-        brew install mvnvm
-      shell: bash
 
     - name: Get artifact ID
       id: artifact-id
@@ -81,24 +75,18 @@ runs:
       run: git checkout ${{ inputs.release-version }}
       shell: bash
 
-    - name: Install correct Maven
-      run: |
-        echo "mvn_version=${{inputs.mavenVersion}}" >> mvnvm.properties
-        mvn --version
-      shell: bash  
-
     - name: Update version in pom.xml
       run: atlas-mvn -q -B versions:set -DnewVersion=${{ inputs.release-version }} -DgenerateBackupPoms=false
       shell: bash
       env:
-        ATLAS_MVN: /home/runner/.mvnvm/apache-maven-${{inputs.mavenVersion}}/bin/mvn
+        ATLAS_MVN: $MAVEN_HOME
 
     - name: Packaging
       run: |
         atlas-mvn -q package
       shell: bash
       env:
-        ATLAS_MVN: /home/runner/.mvnvm/apache-maven-${{inputs.mavenVersion}}/bin/mvn
+        ATLAS_MVN: $MAVEN_HOME
 
     - name: Get jar file name
       id: get-jar-file
