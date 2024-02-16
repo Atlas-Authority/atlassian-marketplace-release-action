@@ -49,7 +49,7 @@ runs:
 
     - name: Set up MAVEN_HOME environment variable
       run: |
-        OUTPUT_COMMAND=$(which mvn')
+        OUTPUT_COMMAND=$(which mvn)
         echo "ATLAS_MVN=$OUTPUT_COMMAND" >> $GITHUB_ENV
       shell: bash
 
