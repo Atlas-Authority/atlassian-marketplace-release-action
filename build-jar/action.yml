@@ -40,6 +40,7 @@ runs:
         sudo apt-get install atlassian-plugin-sdk
         atlas-version
         echo $MAVEN_HOME
+        env
       shell: bash
 
     - name: Install Java
