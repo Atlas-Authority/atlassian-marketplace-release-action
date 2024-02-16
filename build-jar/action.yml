@@ -51,6 +51,7 @@ runs:
       run: |
         OUTPUT_COMMAND=$(mvn --version | grep 'Maven home: ' | sed 's/Maven home: //')
         echo "MAVEN_HOME=$OUTPUT_COMMAND" >> $GITHUB_ENV
+      shell: bash
 
     - name: Get artifact ID
       id: artifact-id
