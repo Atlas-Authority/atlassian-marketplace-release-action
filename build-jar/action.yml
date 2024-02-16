@@ -39,7 +39,7 @@ runs:
         sudo apt-get update
         sudo apt-get install atlassian-plugin-sdk
         atlas-version
-        echo $MAVEN_HOME
+        echo $(which mvn)
         env
       shell: bash
 
