@@ -39,8 +39,7 @@ runs:
         sudo apt-get update
         sudo apt-get install atlassian-plugin-sdk
         atlas-version
-        echo $(which mvn)
-        env
+        mvn --version
       shell: bash
 
     - name: Install Java
