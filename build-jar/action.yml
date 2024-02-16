@@ -49,8 +49,8 @@ runs:
 
     - name: Set up MAVEN_HOME environment variable
       run: |
-        OUTPUT_COMMAND=$(mvn --version | grep 'Maven home: ' | sed 's/Maven home: //')
-        echo "MAVEN_HOME=$OUTPUT_COMMAND" >> $GITHUB_ENV
+        OUTPUT_COMMAND=$(which mvn')
+        echo "ATLAS_MVN=$OUTPUT_COMMAND" >> $GITHUB_ENV
       shell: bash
 
     - name: Get artifact ID
@@ -83,15 +83,11 @@ runs:
     - name: Update version in pom.xml
       run: atlas-mvn -q -B versions:set -DnewVersion=${{ inputs.release-version }} -DgenerateBackupPoms=false
       shell: bash
-      env:
-        ATLAS_MVN: ${{env.MAVEN_HOME}}
 
     - name: Packaging
       run: |
         atlas-mvn -q package
       shell: bash
-      env:
-        ATLAS_MVN: ${{env.MAVEN_HOME}}
 
     - name: Get jar file name
       id: get-jar-file
