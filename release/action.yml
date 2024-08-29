@@ -7,6 +7,10 @@ inputs:
   branch:
     description: 'The release branch to checkout'
     required: true
+  jdkVersion:
+    description: 'The JDK version to install and use for compilation'
+    required: false
+    default: '11'
   githubUserName:
     description: 'Github username to commit'
     required: false
@@ -45,6 +49,7 @@ runs:
       uses: Atlas-Authority/atlassian-marketplace-release-action/build-jar@main
       with:
         release-version: ${{ steps.verify-release-tag.outputs.release-version }}
+        jdkVersion: ${{ inputs.jdkVersion }}
         branch: ${{ inputs.branch }}
         githubToken: ${{ inputs.githubToken }}
         mavenVersion: ${{ inputs.mavenVersion }}
