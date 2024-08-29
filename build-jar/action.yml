@@ -4,6 +4,9 @@ inputs:
   release-version:
     description: 'The release version'
     required: true
+  jdkVersion:
+    description: 'The JDK version to install and use for compilation'
+    required: true
   branch:
     description: 'The release branch to checkout'
     required: true
@@ -45,7 +48,7 @@ runs:
       uses: actions/setup-java@v3
       with:
         distribution: 'adopt'
-        java-version: '11'
+        java-version: ${{ inputs.jdkVersion }}
 
     - name: Set up MAVEN_HOME environment variable
       run: |
