@@ -40,6 +40,7 @@ runs:
         sudo tar -xvzf atlassian-plugin-sdk* -C /opt
         sudo mv /opt/atlassian-plugin-sdk* /opt/atlassian-plugin-sdk
         sudo chmod +rx /opt/atlassian-plugin-sdk/bin/*
+        sudo chmod +rx /opt/atlassian-plugin-sdk/apache-maven-*/bin/*
         sudo ln -s /opt/atlassian-plugin-sdk/bin/* /usr/local/bin
         atlas-version
       shell: bash
