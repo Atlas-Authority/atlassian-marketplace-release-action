@@ -37,6 +37,7 @@ runs:
       id: install-atlas-sdk
       run: |
         wget https://marketplace.atlassian.com/download/apps/1210993/version/42550
+        ls
         sudo tar -xvzf atlassian-plugin-sdk* -C /opt
         sudo mv /opt/atlassian-plugin-sdk* /opt/atlassian-plugin-sdk
         sudo chmod +rx /opt/atlassian-plugin-sdk/bin/*
