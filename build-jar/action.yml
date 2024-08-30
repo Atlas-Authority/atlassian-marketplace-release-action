@@ -39,6 +39,7 @@ runs:
         wget https://marketplace.atlassian.com/download/plugins/atlassian-plugin-sdk-tgz
         sudo tar -xvzf atlassian-plugin-sdk* -C /opt
         sudo mv /opt/atlassian-plugin-sdk* /opt/atlassian-plugin-sdk
+        sudo ln -s /opt/atlassian-plugin-sdk/bin/* /usr/local/bin
         atlas-version
       shell: bash
 
