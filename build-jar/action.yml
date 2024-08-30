@@ -36,9 +36,9 @@ runs:
     - name: Install Atlas-SDK
       id: install-atlas-sdk
       run: |
-        wget https://marketplace.atlassian.com/download/apps/1210993/version/42550
+        wget -O atlassian-plugin-sdk.tar.gz https://marketplace.atlassian.com/download/apps/1210993/version/42550
         ls
-        sudo tar -xvzf atlassian-plugin-sdk* -C /opt
+        sudo tar -xvzf atlassian-plugin-sdk.tar.gz -C /opt
         sudo mv /opt/atlassian-plugin-sdk* /opt/atlassian-plugin-sdk
         sudo chmod +rx /opt/atlassian-plugin-sdk/bin/*
         sudo chmod +rx /opt/atlassian-plugin-sdk/apache-maven-*/bin/*
