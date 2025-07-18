@@ -33,6 +33,12 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Install Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'adopt'
+        java-version: ${{ inputs.jdkVersion }}
+
     - name: Install Atlas-SDK
       id: install-atlas-sdk
       run: |
@@ -45,12 +51,6 @@ runs:
         sudo ln -s /opt/atlassian-plugin-sdk/bin/* /usr/local/bin
         atlas-version
       shell: bash
-
-    - name: Install Java
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'adopt'
-        java-version: ${{ inputs.jdkVersion }}
 
     - name: Set up MAVEN_HOME environment variable
       run: |
