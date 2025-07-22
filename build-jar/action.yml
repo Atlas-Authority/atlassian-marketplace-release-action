@@ -43,13 +43,13 @@ runs:
       id: install-atlas-sdk
       run: |
         if [ "${{ inputs.jdkVersion }}" == "11" ]; then
-          echo "Installing Atlas SDK compatible with Java 11"
-          wget -O atlassian-plugin-sdk.tar.gz https://marketplace.atlassian.com/download/apps/1210993/version/40200  # SDK 8.0.16
+          echo "Installing Atlas SDK 8.1.12 (Java 11 compatible)"
+          wget -O atlassian-plugin-sdk.tar.gz https://marketplace.atlassian.com/download/apps/1210993/version/41692
         else
-          echo "Installing Atlas SDK compatible with Java 17"
-          wget -O atlassian-plugin-sdk.tar.gz https://marketplace.atlassian.com/download/apps/1210993/version/42550  # SDK 8.2.10
+          echo "Installing Atlas SDK 8.2.10 (Java 17 compatible)"
+          wget -O atlassian-plugin-sdk.tar.gz https://marketplace.atlassian.com/download/apps/1210993/version/42550
         fi
-
+  
         ls
         sudo tar -xvzf atlassian-plugin-sdk.tar.gz -C /opt
         sudo mv /opt/atlassian-plugin-sdk* /opt/atlassian-plugin-sdk
