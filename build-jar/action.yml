@@ -42,14 +42,10 @@ runs:
     - name: Install Atlas-SDK
       id: install-atlas-sdk
       run: |
-        if [ "${{ inputs.jdkVersion }}" == "11" ]; then
-          echo "Installing Atlas SDK 8.1.12 (Java 11 compatible)"
-          wget -O atlassian-plugin-sdk.tar.gz https://marketplace.atlassian.com/download/apps/1210993/version/41692
-        else
-          echo "Installing Atlas SDK 8.2.10 (Java 17 compatible)"
-          wget -O atlassian-plugin-sdk.tar.gz https://marketplace.atlassian.com/download/apps/1210993/version/42550
-        fi
-  
+        # Always use SDK 8.2.10 for both Java versions
+        echo "Installing Atlas SDK 8.2.10"
+        wget -O atlassian-plugin-sdk.tar.gz https://marketplace.atlassian.com/download/apps/1210993/version/42550
+
         ls
         sudo tar -xvzf atlassian-plugin-sdk.tar.gz -C /opt
         sudo mv /opt/atlassian-plugin-sdk* /opt/atlassian-plugin-sdk
@@ -57,6 +53,17 @@ runs:
         sudo chmod +rx /opt/atlassian-plugin-sdk/apache-maven-*/bin/*
         sudo ln -s /opt/atlassian-plugin-sdk/bin/* /usr/local/bin
         atlas-version
+      shell: bash
+
+    - name: Packaging
+      run: |
+        if [ "${{ inputs.jdkVersion }}" == "11" ]; then
+          echo "Building with Java 11 compatibility"
+          atlas-mvn clean package -Dmaven.compiler.source=11 -Dmaven.compiler.target=11 -Dmaven.compiler.release=11
+        else
+          echo "Building with Java 17"
+          atlas-mvn clean package
+        fi
       shell: bash
 
     - name: Set up MAVEN_HOME environment variable
