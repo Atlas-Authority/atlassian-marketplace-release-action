@@ -105,7 +105,13 @@ runs:
 
     - name: Packaging
       run: |
-        atlas-mvn -q package
+        if [ "${{ inputs.jdkVersion }}" == "11" ]; then
+          echo "Building with Java 11 compatibility"
+          atlas-mvn -q package -Dmaven.compiler.source=11 -Dmaven.compiler.target=11 -Dmaven.compiler.release=11
+        else
+          echo "Building with Java 17"
+          atlas-mvn -q package
+        fi
       shell: bash
 
     - name: Get jar file name
