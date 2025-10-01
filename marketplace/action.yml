@@ -25,7 +25,7 @@ runs:
   steps:
     - name: Set marketplace base URL
       id: mp-base-url
-      run: echo "::set-output name=value::https://marketplace.atlassian.com"
+      run: echo "value=https://marketplace.atlassian.com" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Get marketplace info
@@ -38,8 +38,8 @@ runs:
     - name: Extract marketplace endpoints
       id: mp-endpoint
       run: |
-        echo "::set-output name=assets::${{ fromJSON(steps.mp-info.outputs.response)._links.assets.href }}"
-        echo "::set-output name=addons::${{ fromJSON(steps.mp-info.outputs.response)._links.addons.href }}"
+        echo "assets=${{ fromJSON(steps.mp-info.outputs.response)._links.assets.href }}" >> $GITHUB_OUTPUT
+        echo "addons=${{ fromJSON(steps.mp-info.outputs.response)._links.addons.href }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Get marketplace asset info
@@ -51,7 +51,7 @@ runs:
 
     - name: Extract marketplace artifact endpoint
       id: mp-artifact-endpoint
-      run: echo "::set-output name=value::${{ fromJSON(steps.mp-asset-info.outputs.response)._links.artifact.href }}"
+      run: echo "value=${{ fromJSON(steps.mp-asset-info.outputs.response)._links.artifact.href }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Upload to marketplace
@@ -67,7 +67,7 @@ runs:
 
     - name: Extract marketplace upload endpoint
       id: mp-upload-endpoint
-      run: echo "::set-output name=value::${{ fromJSON(steps.mp-upload.outputs.response)._links.self.href }}"
+      run: echo "value=${{ fromJSON(steps.mp-upload.outputs.response)._links.self.href }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Get marketplace addons APIs
@@ -79,7 +79,7 @@ runs:
 
     - name: Extract marketplace addon endpoint template
       id: mp-addon-endpoint-template
-      run: echo "::set-output name=value::${{ fromJSON(steps.mp-addon-api.outputs.response)._links.byKey.href }}"
+      run: echo "value=${{ fromJSON(steps.mp-addon-api.outputs.response)._links.byKey.href }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Build marketplace addon endpoint
@@ -101,7 +101,7 @@ runs:
 
     - name: Extract marketplace addons version endpoint
       id: mp-addon-version-endpoint
-      run: echo "::set-output name=value::${{ fromJSON(steps.mp-addon-info.outputs.response)._links.versions.href }}"
+      run: echo "value=${{ fromJSON(steps.mp-addon-info.outputs.response)._links.versions.href }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Create new marketplace version

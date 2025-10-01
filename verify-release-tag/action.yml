@@ -16,7 +16,7 @@ runs:
   steps:
     - name: Get release version
       id: release-version
-      run: echo ::set-output name=value::${{ github.event.release.tag_name }}
+      run: echo "value=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Print tag version
@@ -31,7 +31,7 @@ runs:
 
     - name: Check if branch ${{ inputs.branch }} contain tag ${{ inputs.tag }}
       id: branch-contains-tag
-      run: echo "::set-output name=value::$(git branch --contains ${{ inputs.tag }} | grep -E '(^|\s)${{ inputs.branch }}')"
+      run: echo "value=$(git branch --contains ${{ inputs.tag }} | grep -E '(^|\s)${{ inputs.branch }}')" >> $GITHUB_OUTPUT
       shell: bash
       
     - name: Print branch-contains-tag
