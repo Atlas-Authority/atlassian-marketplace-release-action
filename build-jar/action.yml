@@ -74,12 +74,12 @@ runs:
 
     - name: Get artifact ID
       id: artifact-id
-      run: echo "::set-output name=value::$(atlas-mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout | grep -v '\[' | tail -1)"
+      run: echo "value=$(atlas-mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout | grep -v '\[' | tail -1)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Get current version
       id: current-version
-      run: echo "::set-output name=value::$(atlas-mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -v '\[' | tail -1)"
+      run: echo "value=$(atlas-mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -v '\[' | tail -1)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Print current version
@@ -88,7 +88,7 @@ runs:
 
     - name: Check if version changed
       id: version-changed
-      run: echo "::set-output name=value::${{ inputs.release-version != steps.current-version.outputs.value }}"
+      run: echo "value=${{ inputs.release-version != steps.current-version.outputs.value }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Print version changed
@@ -117,8 +117,8 @@ runs:
     - name: Get jar file name
       id: get-jar-file
       run: |
-        echo "::set-output name=name::${{ steps.artifact-id.outputs.value }}-${{ inputs.release-version }}.jar"
-        echo "::set-output name=archive::${{ steps.artifact-id.outputs.value }}-${{ inputs.release-version }}"
+        echo "name=${{ steps.artifact-id.outputs.value }}-${{ inputs.release-version }}.jar" >> $GITHUB_OUTPUT
+        echo "archive=${{ steps.artifact-id.outputs.value }}-${{ inputs.release-version }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Get addon key
@@ -153,7 +153,7 @@ runs:
 
     - name: Get head tag
       id: get-head-tag
-      run: echo "::set-output name=value::$(git tag --points-at HEAD | tail -1)"
+      run: echo "value=$(git tag --points-at HEAD | tail -1)" >> $GITHUB_OUTPUT
       if: steps.version-changed.outputs.value == 'true'
       shell: bash
 
@@ -163,7 +163,7 @@ runs:
 
     - name: Check if the new tag is at head
       id: tag-at-head
-      run: echo "::set-output name=value::${{ inputs.release-version == steps.get-head-tag.outputs.value }}"
+      run: echo "value=${{ inputs.release-version == steps.get-head-tag.outputs.value }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Print is new tag at head
@@ -172,7 +172,7 @@ runs:
 
     - name: Check if should bump version
       id: should-bump-version
-      run: echo "::set-output name=value::${{ steps.version-changed.outputs.value == 'true' && steps.tag-at-head.outputs.value == 'true' }}"
+      run: echo "value=${{ steps.version-changed.outputs.value == 'true' && steps.tag-at-head.outputs.value == 'true' }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Print should bump version

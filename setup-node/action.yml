@@ -15,7 +15,7 @@ runs:
   steps:
     - name: Check if package.json is exist
       id: is-node-project
-      run: echo ::set-output name=value::$(test -e package.json && echo true || echo false)
+      run: echo "value=$(test -e package.json && echo true || echo false)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Print is node project
@@ -25,8 +25,8 @@ runs:
     - name: Extract npm and node version
       id: engines
       run: |
-        echo ::set-output name=node::$(cat package.json | jq -r '.engines.node')
-        echo ::set-output name=npm::$(cat package.json | jq -r '.engines.npm')
+        echo "node=$(cat package.json | jq -r '.engines.node')" >> $GITHUB_OUTPUT
+        echo "npm=$(cat package.json | jq -r '.engines.npm')" >> $GITHUB_OUTPUT
       if: steps.is-node-project.outputs.value == 'true'
       shell: bash
 
