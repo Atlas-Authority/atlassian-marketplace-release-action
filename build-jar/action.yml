@@ -55,17 +55,6 @@ runs:
         atlas-version
       shell: bash
 
-    - name: Packaging
-      run: |
-        if [ "${{ inputs.jdkVersion }}" == "11" ]; then
-          echo "Building with Java 11 compatibility"
-          atlas-mvn clean package -Dmaven.compiler.source=11 -Dmaven.compiler.target=11 -Dmaven.compiler.release=11
-        else
-          echo "Building with Java 17"
-          atlas-mvn clean package
-        fi
-      shell: bash
-
     - name: Set up MAVEN_HOME environment variable
       run: |
         OUTPUT_COMMAND=$(which mvn)
