@@ -85,7 +85,9 @@ runs:
       shell: bash
 
     - name: Checkout tag commit
-      run: git checkout ${{ inputs.release-version }}
+      run: |
+        git stash
+        git checkout ${{ inputs.release-version }}
       shell: bash
 
     - name: Update version in pom.xml
