@@ -105,6 +105,13 @@ runs:
         fi
       shell: bash
 
+    - name: Upload node error logs if build fails
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: npm-debug-logs
+        path: /home/runner/.npm/_logs/
+
     - name: Get jar file name
       id: get-jar-file
       run: |
