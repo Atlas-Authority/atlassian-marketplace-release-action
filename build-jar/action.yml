@@ -44,7 +44,7 @@ runs:
       run: |
         # Always use SDK 8.2.10 for both Java versions
         echo "Installing Atlas SDK 8.2.10"
-        wget -O atlassian-plugin-sdk.tar.gz https://marketplace.atlassian.com/download/apps/1210993/version/42550
+        wget -O atlassian-plugin-sdk.tar.gz https://maven.artifacts.atlassian.com/com/atlassian/amps/atlassian-plugin-sdk/8.2.10/atlassian-plugin-sdk-8.2.10.tar.gz
 
         ls
         sudo tar -xvzf atlassian-plugin-sdk.tar.gz -C /opt
